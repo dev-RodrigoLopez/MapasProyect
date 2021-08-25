@@ -31,13 +31,28 @@ class _MapaPageState extends State<MapaPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: Center(
-        child: BlocBuilder<MiUbicacionBloc, MiUbicacionState>(
-            builder: (context, state) => crearMapa(state)),
+        child: Stack(
+          children: [
+            BlocBuilder<MiUbicacionBloc, MiUbicacionState>(
+                builder: (context, state) => crearMapa(state)),
+
+            //TODO: Hacer el toggle cuando estoy manualmente
+            Positioned(
+              top: 10, 
+              child: SearchBar()
+            ),
+
+            MarcadorManual(),
+
+          ],
+        ),
       ),
       floatingActionButton: Column(
         mainAxisAlignment: MainAxisAlignment.end,
         children: [
           BotonUbicacion(),
+          BotonSeguirUbicacion(),
+          BotonMiRuta(),
         ],
       ),
     );
@@ -55,11 +70,21 @@ class _MapaPageState extends State<MapaPage> {
 
     return GoogleMap(
       initialCameraPosition: camaraPosition,
+      myLocationEnabled: true,
       mapType: MapType.normal,
       compassEnabled: true,
       myLocationButtonEnabled: true,
       onMapCreated: mapaBloc.initMapa,
       zoomControlsEnabled: false,
+      polylines: mapaBloc.state.polylines.values.toSet(),
+      onCameraMove: ( camaraPosition ){
+
+        mapaBloc.add( OnMovioMapa( camaraPosition.target ) );
+
+      },
+      onCameraIdle: (){
+        // print('Mapa Idle');
+      },
     );
 
     // return Container(
