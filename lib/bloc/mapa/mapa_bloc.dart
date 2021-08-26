@@ -16,10 +16,11 @@ class MapaBloc extends Bloc<MapaEvent, MapaState> {
 
   //Polylines
   Polyline _miRuta = new Polyline(
-    polylineId: PolylineId('mi_ruta'),
-    width: 3,
-    color: Colors.transparent
-  );
+      polylineId: PolylineId('mi_ruta'), width: 3, color: Colors.transparent);
+
+  //Polylines
+  Polyline _miRutaDestino = new Polyline(
+      polylineId: PolylineId('mi_ruta_destino'), width: 3, color: Colors.black);
 
   void initMapa(GoogleMapController controller) {
     if (!state.mapaListo) {
@@ -37,83 +38,71 @@ class MapaBloc extends Bloc<MapaEvent, MapaState> {
   }
 
   @override
-  Stream<MapaState> mapEventToState( MapaEvent event,) async* {
-
+  Stream<MapaState> mapEventToState(
+    MapaEvent event,
+  ) async* {
     if (event is OnMapaListo) {
       yield state.copyWith(mapaListo: true);
-    } 
-
-    else if (event is OnLocationUpdate) {
-
-      yield* this._onLocationUpdate( event );
-
-    }
-
-    else if( event is OnMarcarRecorrido ){
-
-      yield* this._onMarcarRecorrido( event );
-
-    }
-
-    else if( event is OnSeguirUbicacion ){
-
-       yield* this._onSeguirUbicacion( event );
-      
-    }
-
-    else if( event is OnMovioMapa ){
+    } else if (event is OnLocationUpdate) {
+      yield* this._onLocationUpdate(event);
+    } else if (event is OnMarcarRecorrido) {
+      yield* this._onMarcarRecorrido(event);
+    } else if (event is OnSeguirUbicacion) {
+      yield* this._onSeguirUbicacion(event);
+    } else if (event is OnMovioMapa) {
       // print( event.centroMapa );
-      yield state.copyWith( ubicacionCentral: event.centroMapa );
+      yield state.copyWith(ubicacionCentral: event.centroMapa);
+    } else if (event is OnCrearRutaInicialDestino) {
+      yield* _onCrearRutaInicioDestino(event);
+    }
+  }
 
+  Stream<MapaState> _onLocationUpdate(OnLocationUpdate event) async* {
+    if (state.seguirUbicacion) {
+      this.moverCamara(event.ubicacion);
     }
 
+    List<LatLng> points = [...this._miRuta.points, event.ubicacion];
+    this._miRuta = this._miRuta.copyWith(pointsParam: points);
 
+    final currentPolylines = state.polylines;
+    currentPolylines['mi_ruta'] = this._miRuta;
+
+    yield state.copyWith(polylines: currentPolylines);
   }
 
+  Stream<MapaState> _onMarcarRecorrido(OnMarcarRecorrido event) async* {
+    if (!state.dibujarRecorrido) {
+      this._miRuta = this._miRuta.copyWith(colorParam: Colors.blue[400]);
+    } else {
+      this._miRuta = this._miRuta.copyWith(colorParam: Colors.transparent);
+    }
+    final currentPolylines = state.polylines;
+    currentPolylines['mi_ruta'] = this._miRuta;
 
-  Stream<MapaState> _onLocationUpdate( OnLocationUpdate event )async* {
+    yield state.copyWith(
+        dibujarRecorrido: !state.dibujarRecorrido, polylines: currentPolylines);
+  }
 
-    if( state.seguirUbicacion ){
-      this.moverCamara( event.ubicacion );
+  Stream<MapaState> _onSeguirUbicacion(OnSeguirUbicacion event) async* {
+    if (!state.seguirUbicacion) {
+      this.moverCamara(this._miRuta.points[this._miRuta.points.length - 1]);
     }
 
-      List<LatLng> points = [ ...this._miRuta.points, event.ubicacion ];
-      this._miRuta = this._miRuta.copyWith( pointsParam: points );
-
-      final currentPolylines = state.polylines;
-      currentPolylines['mi_ruta'] = this._miRuta;
-
-      yield state.copyWith( polylines: currentPolylines );
-
+    yield state.copyWith(seguirUbicacion: !state.seguirUbicacion);
   }
 
-  Stream<MapaState> _onMarcarRecorrido( OnMarcarRecorrido event )async* {
+  Stream<MapaState> _onCrearRutaInicioDestino(
+      OnCrearRutaInicialDestino event) async* {
+    this._miRutaDestino =
+        this._miRutaDestino.copyWith(pointsParam: event.rutaCordenadas);
 
-      if( !state.dibujarRecorrido ){
-        this._miRuta = this._miRuta.copyWith( colorParam: Colors.blue[400] );
-      }
-      else{
-        this._miRuta = this._miRuta.copyWith( colorParam: Colors.transparent );
-      }
-       final currentPolylines = state.polylines;
-      currentPolylines['mi_ruta'] = this._miRuta;
+    final currentPolylines = state.polylines;
+    currentPolylines['mi_ruta_destino'] = this._miRutaDestino;
 
-      yield state.copyWith( 
-        dibujarRecorrido: !state.dibujarRecorrido,
-        polylines: currentPolylines 
-      );
-
+    yield state.copyWith(
+      polylines: currentPolylines,
+      //TODO:Marcadores
+    );
   }
-
-    Stream<MapaState> _onSeguirUbicacion( OnSeguirUbicacion event )async* {
-
-      if( !state.seguirUbicacion ){
-        this.moverCamara( this._miRuta.points[ this._miRuta.points.length -1 ] );
-      }
-
-      yield state.copyWith( seguirUbicacion: !state.seguirUbicacion );
-
-  }
-
-
 }

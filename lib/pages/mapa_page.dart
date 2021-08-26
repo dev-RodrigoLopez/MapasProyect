@@ -37,13 +37,9 @@ class _MapaPageState extends State<MapaPage> {
                 builder: (context, state) => crearMapa(state)),
 
             //TODO: Hacer el toggle cuando estoy manualmente
-            Positioned(
-              top: 10, 
-              child: SearchBar()
-            ),
+            Positioned(top: 10, child: SearchBar()),
 
             MarcadorManual(),
-
           ],
         ),
       ),
@@ -68,24 +64,24 @@ class _MapaPageState extends State<MapaPage> {
     final camaraPosition =
         new CameraPosition(target: state.ubicacion, zoom: 15);
 
-    return GoogleMap(
-      initialCameraPosition: camaraPosition,
-      myLocationEnabled: true,
-      mapType: MapType.normal,
-      compassEnabled: true,
-      myLocationButtonEnabled: true,
-      onMapCreated: mapaBloc.initMapa,
-      zoomControlsEnabled: false,
-      polylines: mapaBloc.state.polylines.values.toSet(),
-      onCameraMove: ( camaraPosition ){
-
-        mapaBloc.add( OnMovioMapa( camaraPosition.target ) );
-
-      },
-      onCameraIdle: (){
-        // print('Mapa Idle');
-      },
-    );
+    return BlocBuilder<MapaBloc, MapaState>(builder: (context, state) {
+      return GoogleMap(
+        initialCameraPosition: camaraPosition,
+        myLocationEnabled: true,
+        mapType: MapType.normal,
+        compassEnabled: true,
+        myLocationButtonEnabled: true,
+        onMapCreated: mapaBloc.initMapa,
+        zoomControlsEnabled: false,
+        polylines: mapaBloc.state.polylines.values.toSet(),
+        onCameraMove: (camaraPosition) {
+          mapaBloc.add(OnMovioMapa(camaraPosition.target));
+        },
+        onCameraIdle: () {
+          // print('Mapa Idle');
+        },
+      );
+    });
 
     // return Container(
     //   child: Center(
