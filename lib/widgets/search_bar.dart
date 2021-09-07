@@ -46,9 +46,10 @@ class SearchBar extends StatelessWidget {
           onTap: () async {
             final proximidad =
                 BlocProvider.of<MiUbicacionBloc>(context).state.ubicacion;
+                final historial = BlocProvider.of<BusquedaBloc>(context).state.historial;
 
             final SearchResult resultado = await showSearch(
-                context: context, delegate: SearchDestino(proximidad));
+                context: context, delegate: SearchDestino(proximidad, historial));
             this.retornoBusqueda(context, resultado);
           },
         ),
@@ -88,6 +89,12 @@ class SearchBar extends StatelessWidget {
     mapaBloc.add( OnCrearRutaInicialDestino(rutaCordenadas, distancia, duracion) );
 
     // Navigator.pop(context);
+
+    //Agregar al historial
+    final busquedaBloc = BlocProvider.of<BusquedaBloc>(context);
+    busquedaBloc.add( OnAgregarHistorial( result ) );
+
+
 
   }
 }

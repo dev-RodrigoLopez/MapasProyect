@@ -9,8 +9,9 @@ class SearchDestino extends SearchDelegate<SearchResult> {
   final String searchFieldLabel;
   final TraficoServicios _trafficService;
   final LatLng proximidad;
+  final List<SearchResult> historial;
 
-  SearchDestino(this.proximidad)
+  SearchDestino(this.proximidad, this.historial)
       : this.searchFieldLabel = 'Buscar',
         this._trafficService = new TraficoServicios();
 
@@ -43,6 +44,7 @@ class SearchDestino extends SearchDelegate<SearchResult> {
 
       return ListView(
         children: [
+
           ListTile(
             leading: Icon(Icons.location_on),
             title: Text('Colocar ubicacion manualmente'),
@@ -50,7 +52,20 @@ class SearchDestino extends SearchDelegate<SearchResult> {
               print('Manualmente');
               this.close(context, SearchResult(cancelo: false, manual: true));
             },
-          )
+          ),
+
+          ...this.historial.map(
+            ( result ) => ListTile(
+              leading: Icon( Icons.history ),
+              title: Text( result.nombreDestino ),
+              subtitle: Text( result.descripcion ),
+              onTap: (){
+                this.close( context, result );
+              },
+            )
+          ).toList()
+          
+
         ],
       );
       
