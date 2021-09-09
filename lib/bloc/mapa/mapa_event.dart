@@ -18,8 +18,9 @@ class OnCrearRutaInicialDestino extends MapaEvent {
   final List<LatLng> rutaCordenadas;
   final double distancia;
   final double duracion;
+  final String nombreDestino;
 
-  OnCrearRutaInicialDestino(this.rutaCordenadas, this.distancia, this.duracion);
+  OnCrearRutaInicialDestino(this.rutaCordenadas, this.distancia, this.duracion, this.nombreDestino);
 }
 
 class OnMovioMapa extends MapaEvent {

@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:dio/dio.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart' show LatLng;
 import 'package:mapa/helpers/debouncer.dart';
+import 'package:mapa/model/reverse_model_response.dart';
 
 import 'package:mapa/model/search_response.dart';
 import 'package:mapa/model/trafficResponse.dart';
@@ -34,8 +35,6 @@ class TraficoServicios {
 
   Future<DrivingResponse> getCordsInicioFin(
       LatLng inicio, LatLng destino) async {
-    print('Inicio $inicio');
-    print('Fin $destino');
 
     final cordenadas =
         ' ${inicio.longitude}, ${inicio.latitude}; ${destino.longitude}, ${destino.latitude}';
@@ -97,5 +96,25 @@ class TraficoServicios {
   Future.delayed(Duration(milliseconds: 200)).then((_) => timer.cancel()); 
 
 }
+
+  Future<ReverseQueryResponse> getCoordenadasInfo( LatLng destinocoordenadas ) async {
+
+    final url = '${this.baseGeolocalizacion}/mapbox.places/${ destinocoordenadas.longitude }, ${ destinocoordenadas.latitude }.json';
+
+    final resp = await this._dio.get(
+      url, 
+      options: Options(followRedirects: false) , 
+      queryParameters: {
+        'access_token': this.apikey,
+        'language': 'es',
+      }
+    );
+
+    // print(resp);
+    final data = reverseQueryResponseFromJson( resp.data);
+
+    return data;
+
+  }
 
 }
