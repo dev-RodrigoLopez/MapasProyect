@@ -6,6 +6,7 @@ import 'package:mapa/pages/loading_page.dart';
 import 'package:mapa/pages/mapa_page.dart';
 
 import 'package:mapa/bloc/mi_ubicacion/mi_ubicacion_bloc.dart';
+import 'package:mapa/pages/test_marker.dart';
 import 'bloc/mapa/mapa_bloc.dart';
 import 'package:mapa/bloc/busqueda/busqueda_bloc.dart';
 
@@ -24,6 +25,7 @@ class MyApp extends StatelessWidget {
         title: 'Material App',
         // debugShowCheckedModeBanner: false,
         home: LoadingPage(),
+        // home: TestMarkerPAge(),
         routes: {
           'mapa': (_) => MapaPage(),
           'loading': (_) => LoadingPage(),
